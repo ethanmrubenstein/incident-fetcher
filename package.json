@@ -1,0 +1,23 @@
+{
+  "name": "incident-fetcher",
+  "version": "1.0.0",
+  "description": "A web app that fetches the live Florida Highway Patrol (FHP) CAD incident feed and plots active incidents on an interactive Leaflet map.",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server",
+    "start": "node server"
+  },
+  "keywords": [],
+  "author": "Ethan Rubenstein",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "rss-parser": "^3.13.0",
+    "xml-parser": "^1.2.1",
+    "xmldom": "^0.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="images/florida-highway-patrol.png" type="image/png">
+  <title>FHP Incidents</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      color: #fff;
+      background-color: #19293F;
+      border-bottom: 5px solid #D23E34;
+
+      padding: 2rem 1rem;
+
+      display: flex;
+      gap: 10px;
+
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    #map {
+      height: 100%;
+    }
+
+    .footer {
+      color: #fff;
+      background-color: #19293F;
+      border-top: 5px solid #D23E34;
+
+      padding: 10px;
+
+      text-align: center;
+
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="images/florida-highway-patrol.png" alt="Florida Highway Patrol Logo" width="32" height="32">
+      <p>Florida Highway Patrol</p>
+    </div>
+    <div id="map"></div>
+    <div class="footer">
+      <p>&copy; <span id="year"></span> Florida Highway Patrol</p>
+    </div>
+  </div>
+
+  <script src="js/script.js"></script>
+</body>
+
+</html>
