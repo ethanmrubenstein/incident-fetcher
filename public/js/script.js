@@ -222,48 +222,36 @@ const loadIncidentsOnMap = (incidents, markers) => {
     "S55S",
   ];
 
-  const INCIDENTS_URL = "/incidents";
+  markers.clearLayers();
 
-  try {
-    const response = await fetch(INCIDENTS_URL);
-    if (!response.ok) {
-      throw new Error(`Response status: ${response.status}`);
+  incidents.forEach((item) => {
+    let marker;
+    if (VEHICLE_CRASH_SIGNALS.includes(item.incidentType)) {
+      marker = markersList.vehicleCrash;
+    } else if (item.incidentType === VEHICLE_FIRE_SIGNAL) {
+      marker = markersList.vehicleFire;
+    } else if (VEHICLE_DISABLED_SIGNALS.includes(item.incidentType)) {
+      marker = markersList.vehicleDisabled;
+    } else if (ROAD_OBSTRUCTION_SIGNALS.includes(item.incidentType)) {
+      marker = markersList.trafficBarricade;
+    } else if (FIRE_SIGNALS.includes(item.incidentType)) {
+      marker = markersList.fire;
+    } else if (CRITICAL_INCIDENT_SIGNALS.includes(item.incidentType)) {
+      marker = markersList.redTriangle;
     }
 
-    const result = await response.json();
-
-    result.forEach((item) => {
-      let marker;
-      if (VEHICLE_CRASH_SIGNALS.includes(item.incidentType)) {
-        marker = markersList.vehicleCrash;
-      } else if (item.incidentType === VEHICLE_FIRE_SIGNAL) {
-        marker = markersList.vehicleFire;
-      } else if (VEHICLE_DISABLED_SIGNALS.includes(item.incidentType)) {
-        marker = markersList.vehicleDisabled;
-      } else if (ROAD_OBSTRUCTION_SIGNALS.includes(item.incidentType)) {
-        marker = markersList.trafficBarricade;
-      } else if (FIRE_SIGNALS.includes(item.incidentType)) {
-        marker = markersList.fire;
-      } else if (CRITICAL_INCIDENT_SIGNALS.includes(item.incidentType)) {
-        marker = markersList.redTriangle;
-      }
-
-      markers.addLayer(
-        L.marker([item.latitude, item.longitude], {
-          icon: marker || markersList.yellowTriangle,
-        })
-          .bindPopup(
-            `
+    markers.addLayer(
+      L.marker([item.latitude, item.longitude], {
+        icon: marker || markersList.yellowTriangle,
+      })
+        .bindPopup(
+          `
           <strong>${item.incidentName || "No Incident Name"}</strong><br>${item.county || "No County"}<br>${item.location || "No Location"}<br>${item.remarks || "No Remarks"}
           `,
-          )
-          .bindTooltip(item.incidentType || "No Incident Type"),
-      );
-    });
-  } catch (error) {
-    console.error(error.message);
-  }
-  map.addLayer(markers);
+        )
+        .bindTooltip(item.incidentType || "No Incident Type"),
+    );
+  });
 };
 
 const TALLAHASSEE_LATITUDE = 30.4468;
