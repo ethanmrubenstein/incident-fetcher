@@ -3,6 +3,51 @@ document.getElementById("year").textContent = new Date().getFullYear();
 
 // Map Stuff --------------------------------
 const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
+  let markers = L.markerClusterGroup();
+
+  L.control
+    .Legend({
+      position: "bottomleft",
+      legends: [
+        {
+          label: "Vehicle Crash",
+          type: "image",
+          url: "images/vehicle-crash.png",
+        },
+        {
+          label: "Vehicle Fire",
+          type: "image",
+          url: "images/vehicle-fire.png",
+        },
+        {
+          label: "Disabled Vehicle",
+          type: "image",
+          url: "images/vehicle-disabled.png",
+        },
+        {
+          label: "Road Obstruction",
+          type: "image",
+          url: "images/traffic-barricade.png",
+        },
+        {
+          label: "Fire",
+          type: "image",
+          url: "images/fire.png",
+        },
+        {
+          label: "Miscellaneous Incident",
+          type: "image",
+          url: "images/yellow-triangle.png",
+        },
+        {
+          label: "Critical Incident",
+          type: "image",
+          url: "images/red-triangle.png",
+        },
+      ],
+    })
+    .addTo(map);
+
   map.on("moveend", () => {
     localStorage.setItem("zoom", map.getZoom());
 
@@ -38,7 +83,7 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
     .bindPopup("2900 Apalachee Parkway, Tallahassee, Florida 32399-0500")
     .bindTooltip("Florida Highway Patrol Headquarters");
 
-  const markers = {
+  const markersList = {
     yellowTriangle: L.icon({
       iconUrl: "images/yellow-triangle.png",
 
@@ -76,6 +121,64 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
     }),
   };
 
+  const VEHICLE_CRASH_SIGNALS = [
+    "S4",
+    "S4I",
+    "S4IR",
+    "S4P",
+    "S4R",
+    "S3",
+    "S3I",
+    "S3IR",
+    "S3P",
+    "S3R",
+  ];
+
+  const VEHICLE_FIRE_SIGNAL = "S25V";
+
+  const VEHICLE_DISABLED_SIGNALS = ["S76", "S76P", "S76R"];
+
+  const ROAD_OBSTRUCTION_SIGNALS = [
+    "S16",
+    "S16C",
+    "S16D",
+    "S16F",
+    "S16I",
+    "S16O",
+    "S16S",
+    "S16T",
+    "S16W",
+    "S38",
+    "S38X",
+  ];
+
+  const FIRE_SIGNALS = [
+    "S25",
+    "S25A",
+    "S25C",
+    "S25D",
+    "S25P",
+    "S25F",
+    "S25I",
+    "S25S",
+  ];
+
+  const CRITICAL_INCIDENT_SIGNALS = [
+    "S5",
+    "S7",
+    "S7B",
+    "S7P",
+    "S30",
+    "S45",
+    "S47",
+    "S47D",
+    "S48",
+    "S55A",
+    "S55B",
+    "S55D",
+    "S55S",
+  ];
+
   const INCIDENTS_URL = "/incidents";
 
   try {
@@ -87,93 +190,37 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
     const result = await response.json();
 
     result.forEach((item) => {
-      const VEHICLE_CRASH_SIGNALS = [
-        "S4",
-        "S4I",
-        "S4IR",
-        "S4P",
-        "S4R",
-        "S3",
-        "S3I",
-        "S3IR",
-        "S3P",
-        "S3R",
-      ];
-
-      const VEHICLE_FIRE_SIGNAL = "S25V";
-
-      const VEHICLE_DISABLED_SIGNALS = ["S76", "S76P", "S76R"];
-
-      const ROAD_OBSTRUCTION_SIGNALS = [
-        "S16",
-        "S16C",
-        "S16D",
-        "S16F",
-        "S16I",
-        "S16O",
-        "S16S",
-        "S16T",
-        "S16W",
-        "S38",
-        "S38X",
-      ];
-
-      const FIRE_SIGNALS = [
-        "S25",
-        "S25A",
-        "S25C",
-        "S25D",
-        "S25P",
-        "S25F",
-        "S25I",
-        "S25S",
-      ];
-
-      const CRITICAL_INCIDENT_SIGNALS = [
-        "S5",
-        "S7",
-        "S7B",
-        "S7P",
-        "S30",
-        "S45",
-        "S47",
-        "S47D",
-        "S48",
-        "S55A",
-        "S55B",
-        "S55D",
-        "S55S",
-      ];
-
       let marker;
       if (VEHICLE_CRASH_SIGNALS.includes(item.incidentType)) {
-        marker = markers.vehicleCrash;
+        marker = markersList.vehicleCrash;
       } else if (item.incidentType === VEHICLE_FIRE_SIGNAL) {
-        marker = markers.vehicleFire;
+        marker = markersList.vehicleFire;
       } else if (VEHICLE_DISABLED_SIGNALS.includes(item.incidentType)) {
-        marker = markers.vehicleDisabled;
+        marker = markersList.vehicleDisabled;
       } else if (ROAD_OBSTRUCTION_SIGNALS.includes(item.incidentType)) {
-        marker = markers.trafficBarricade;
+        marker = markersList.trafficBarricade;
       } else if (FIRE_SIGNALS.includes(item.incidentType)) {
-        marker = markers.fire;
+        marker = markersList.fire;
       } else if (CRITICAL_INCIDENT_SIGNALS.includes(item.incidentType)) {
-        marker = markers.redTriangle;
+        marker = markersList.redTriangle;
       }
 
-      L.marker([item.latitude, item.longitude], {
-        icon: marker || markers.yellowTriangle,
-      })
-        .addTo(map)
-        .bindPopup(
-          `
+      markers.addLayer(
+        L.marker([item.latitude, item.longitude], {
+          icon: marker || markersList.yellowTriangle,
+        })
+          .bindPopup(
+            `
           <strong>${item.incidentName || "No Incident Name"}</strong><br>${item.county || "No County"}<br>${item.location || "No Location"}<br>${item.remarks || "No Remarks"}
           `,
-        )
-        .bindTooltip(item.incidentType || "No Incident Type");
+          )
+          .bindTooltip(item.incidentType || "No Incident Type"),
+      );
     });
   } catch (error) {
     console.error(error.message);
   }
+  map.addLayer(markers);
 };
 
 const TALLAHASSEE_LATITUDE = 30.4468;
