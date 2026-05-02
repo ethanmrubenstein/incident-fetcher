@@ -8,6 +8,9 @@ A web app that fetches the live Florida Highway Patrol (FHP) CAD incident feed a
 - Full FHP signal code lookup table (S0–S99C)
 - Distinct map markers for vehicle crashes, fires, road obstructions, disabled vehicles, and critical incidents
 - Centers on the user's location (with permission) or falls back to FHP HQ in Tallahassee
+- Persists last-viewed map center and zoom in `localStorage` so the view restores across reloads
+- Optional user-location marker shown only when geolocation succeeds
+- Responsive header that collapses the back-to-PatrolWave link and title on narrow viewports
 - Popups with incident name, location, county, and dispatch remarks
 
 ## Tech Stack
@@ -69,11 +72,12 @@ Returns the current FHP CAD feed as JSON. Each incident has the shape:
 
 ```
 .
-├── server.js          Express server + /incidents endpoint
-├── index.html         Map page
+├── server.js           Express server + /incidents endpoint
+├── index.html          Map page
 ├── public/
-│   ├── js/script.js   Leaflet map + incident rendering
-│   └── images/        Marker icons and logo
+│   ├── css/style.css   Header, footer, and responsive layout styles
+│   ├── js/script.js    Leaflet map, geolocation, and incident rendering
+│   └── images/         Marker icons and logo
 └── package.json
 ```
 
