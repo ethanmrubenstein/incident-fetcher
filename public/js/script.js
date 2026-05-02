@@ -21,9 +21,11 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
 
   mapElement.style.backgroundImage = "";
 
-  L.marker([USER_LATITUDE, USER_LONGITUDE])
-    .addTo(map)
-    .bindTooltip("Your Location");
+  if (USER_LATITUDE && USER_LONGITUDE) {
+    L.marker([USER_LATITUDE, USER_LONGITUDE])
+      .addTo(map)
+      .bindTooltip("Your Location");
+  }
 
   L.marker([TALLAHASSEE_LATITUDE, TALLAHASSEE_LONGITUDE], {
     icon: L.icon({
