@@ -2,39 +2,15 @@
 document.getElementById("year").textContent = new Date().getFullYear();
 
 // Map Stuff --------------------------------
-const TALLAHASSEE_LATITUDE = 30.4468;
-const TALLAHASSEE_LONGITUDE = -84.2157;
-const ZOOM_LEVEL = 13;
-
-const mapElement = document.getElementById("map");
-mapElement.style.backgroundImage = "url('images/loader.gif')";
-mapElement.style.backgroundRepeat = "no-repeat";
-mapElement.style.backgroundPosition = "center";
-
-const GEOLOCATION_IS_AVAILABLE = "geolocation" in navigator;
-
-if (GEOLOCATION_IS_AVAILABLE) {
-  navigator.geolocation.getCurrentPosition((position) => {
-    const USER_LATITUDE = position.coords.latitude;
-    const USER_LONGITUDE = position.coords.longitude;
-    const map = L.map("map").setView(
-      [
-        USER_LATITUDE || TALLAHASSEE_LATITUDE,
-        USER_LONGITUDE || TALLAHASSEE_LONGITUDE,
-      ],
-      ZOOM_LEVEL,
-    );
-    initializeMap(map, USER_LATITUDE, USER_LONGITUDE);
-  });
-} else {
-  const map = L.map("map").setView(
-    [TALLAHASSEE_LATITUDE, TALLAHASSEE_LONGITUDE],
-    ZOOM_LEVEL,
-  );
-  initializeMap(map);
-}
-
 const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
+  map.on("moveend", () => {
+    localStorage.setItem("zoom", map.getZoom());
+
+    const center = map.getCenter();
+    localStorage.setItem("latitude", center.lat);
+    localStorage.setItem("longitude", center.lng);
+  });
+
   const OPEN_STREET_MAP_TILES =
     "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
   L.tileLayer(OPEN_STREET_MAP_TILES, {
@@ -197,3 +173,51 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
     console.error(error.message);
   }
 };
+
+const TALLAHASSEE_LATITUDE = 30.4468;
+const TALLAHASSEE_LONGITUDE = -84.2157;
+const ZOOM_LEVEL = 13;
+
+const mapElement = document.getElementById("map");
+mapElement.style.backgroundImage = "url('images/loader.gif')";
+mapElement.style.backgroundRepeat = "no-repeat";
+mapElement.style.backgroundPosition = "center";
+
+const SAVED_LATITUDE = localStorage.getItem("latitude");
+const SAVED_LONGITUDE = localStorage.getItem("longitude");
+const SAVED_ZOOM = localStorage.getItem("zoom");
+
+const GEOLOCATION_IS_AVAILABLE = "geolocation" in navigator;
+const LOCAL_STORAGE_IS_SET = SAVED_LATITUDE || SAVED_LONGITUDE || SAVED_ZOOM;
+
+if (GEOLOCATION_IS_AVAILABLE) {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const USER_LATITUDE = position.coords.latitude;
+      const USER_LONGITUDE = position.coords.longitude;
+
+      const LATITUDE = SAVED_LATITUDE ? SAVED_LATITUDE : USER_LATITUDE;
+      const LONGITUDE = SAVED_LONGITUDE ? SAVED_LONGITUDE : USER_LONGITUDE;
+      const ZOOM = SAVED_ZOOM ? SAVED_ZOOM : ZOOM_LEVEL;
+
+      const map = L.map("map").setView(
+        [LATITUDE || TALLAHASSEE_LATITUDE, LONGITUDE || TALLAHASSEE_LONGITUDE],
+        ZOOM,
+      );
+      initializeMap(map, USER_LATITUDE, USER_LONGITUDE);
+    },
+    (error) => {
+      const map = L.map("map").setView(
+        [TALLAHASSEE_LATITUDE, TALLAHASSEE_LONGITUDE],
+        ZOOM_LEVEL,
+      );
+      initializeMap(map);
+    },
+  );
+} else {
+  const map = L.map("map").setView(
+    [TALLAHASSEE_LATITUDE, TALLAHASSEE_LONGITUDE],
+    ZOOM_LEVEL,
+  );
+  initializeMap(map);
+}
