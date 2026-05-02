@@ -2,6 +2,8 @@
 document.getElementById("year").textContent = new Date().getFullYear();
 
 // Map Stuff --------------------------------
+let alreadyRun = false;
+
 const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
   let markers = L.markerClusterGroup();
 
@@ -64,8 +66,6 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
       '<a href="https://patrolwave.com" target="_blank"><img src="images/patrolwave.png" width="77" height="9"></a> | &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   }).addTo(map);
 
-  mapElement.style.backgroundImage = "";
-
   if (USER_LATITUDE && USER_LONGITUDE) {
     L.marker([USER_LATITUDE, USER_LONGITUDE])
       .addTo(map)
@@ -83,6 +83,49 @@ const initializeMap = async (map, USER_LATITUDE, USER_LONGITUDE) => {
     .bindPopup("2900 Apalachee Parkway, Tallahassee, Florida 32399-0500")
     .bindTooltip("Florida Highway Patrol Headquarters");
 
+  await pollIncidents(markers);
+
+  mapElement.style.backgroundImage = "";
+
+  setInterval(async () => {
+    await pollIncidents(markers);
+  }, 60000);
+  map.addLayer(markers);
+};
+
+const pollIncidents = async (markers) => {
+  const INCIDENTS_URL = "/incidents";
+
+  try {
+    const response = await fetch(INCIDENTS_URL);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    const stringified_result = JSON.stringify(result);
+
+    const SAVED_INCIDENTS = localStorage.getItem("incidents");
+
+    if (stringified_result === SAVED_INCIDENTS) {
+      if (!alreadyRun) {
+        loadIncidentsOnMap(JSON.parse(SAVED_INCIDENTS), markers);
+        alreadyRun = true;
+      } else {
+        return;
+      }
+    } else {
+      localStorage.setItem("incidents", stringified_result);
+
+      loadIncidentsOnMap(result, markers);
+    }
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
+const loadIncidentsOnMap = (incidents, markers) => {
   const markersList = {
     yellowTriangle: L.icon({
       iconUrl: "images/yellow-triangle.png",
