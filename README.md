@@ -7,6 +7,8 @@ A web app that fetches the live Florida Highway Patrol (FHP) CAD incident feed a
 - Live data from the [FHP CAD RSS feed](https://trafficincidents.flhsmv.gov/SmartWebClient/CADrss.aspx)
 - Full FHP signal code lookup table (S0–S99C)
 - Distinct map markers for vehicle crashes, fires, road obstructions, disabled vehicles, and critical incidents
+- Marker clustering via [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster) so dense areas (I-95, Orlando, Miami) stay readable
+- On-map legend (via [Leaflet.Legend](https://github.com/ptma/Leaflet.Legend)) showing what each marker icon represents
 - Centers on the user's location (with permission) or falls back to FHP HQ in Tallahassee
 - Persists last-viewed map center and zoom in `localStorage` so the view restores across reloads
 - Optional user-location marker shown only when geolocation succeeds
@@ -16,7 +18,7 @@ A web app that fetches the live Florida Highway Patrol (FHP) CAD incident feed a
 ## Tech Stack
 
 - **Backend:** Node.js, Express 5, [`rss-parser`](https://www.npmjs.com/package/rss-parser)
-- **Frontend:** Vanilla JS, [Leaflet](https://leafletjs.com/), OpenStreetMap tiles
+- **Frontend:** Vanilla JS, [Leaflet](https://leafletjs.com/), [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster), [Leaflet.Legend](https://github.com/ptma/Leaflet.Legend), OpenStreetMap tiles
 
 ## Getting Started
 
@@ -72,12 +74,19 @@ Returns the current FHP CAD feed as JSON. Each incident has the shape:
 
 ```
 .
-├── server.js           Express server + /incidents endpoint
-├── index.html          Map page
+├── server.js                       Express server + /incidents endpoint
+├── index.html                      Map page
 ├── public/
-│   ├── css/style.css   Header, footer, and responsive layout styles
-│   ├── js/script.js    Leaflet map, geolocation, and incident rendering
-│   └── images/         Marker icons and logo
+│   ├── css/
+│   │   ├── style.css               Header, footer, and responsive layout styles
+│   │   ├── MarkerCluster.css       Leaflet.markercluster base styles
+│   │   ├── MarkerCluster.Default.css  Default cluster theme
+│   │   └── leaflet.legend.css      Legend control styles
+│   ├── js/
+│   │   ├── script.js               Leaflet map, geolocation, and incident rendering
+│   │   ├── leaflet.markercluster.js  Marker clustering plugin
+│   │   └── leaflet.legend.js       Legend control plugin
+│   └── images/                     Marker icons and logo
 └── package.json
 ```
 
